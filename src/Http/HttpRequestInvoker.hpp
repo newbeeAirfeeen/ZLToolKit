@@ -1,0 +1,48 @@
+/*
+* @file_name: HttpRequestInvoker.hpp
+* @date: 2022/03/01
+* @author: oaho
+* Copyright @ hz oaho, All rights reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+ */
+#ifndef SHTOOLKIT_HTTPREQUESTINVOKER_HPP
+#define SHTOOLKIT_HTTPREQUESTINVOKER_HPP
+#include "HttpCommon.hpp"
+#include "HttpInterceptor.hpp"
+#include "HttpRequest.hpp"
+namespace Http{
+  class HttpRequestInvoker{
+  public:
+    using Ptr = std::shared_ptr<HttpRequestInvoker>;
+  public:
+    template<typename BodyType>
+    typename HttpRequest<BodyType>::Ptr createHttpRequest(HTTP_INTERCEPTOR_ARGS){
+      auto request = std::make_shared<HttpRequest<BodyType>>();
+      request -> _method = std::move(request_method);
+      request -> _url = std::move(request_path);
+      request -> onHeaderBody(request_header_map, request_header, request_body);
+      request -> _session = session;
+      return std::move(request);
+    }
+  };
+}
+
+
+#endif // SHTOOLKIT_HTTPREQUESTINVOKER_HPP
