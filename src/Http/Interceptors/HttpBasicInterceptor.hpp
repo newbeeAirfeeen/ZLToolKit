@@ -29,7 +29,7 @@
 namespace Http{
   class HttpBasicInterceptor {
   public:
-    bool operator()(HTTP_INTERCEPTOR_ARGS);
+    bool operator()(HTTP_INTERCEPTOR_CONST_ARGS);
   };
 }
 

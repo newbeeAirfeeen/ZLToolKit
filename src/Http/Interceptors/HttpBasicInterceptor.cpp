@@ -6,7 +6,7 @@
 using namespace toolkit;
 namespace Http{
 
-  bool HttpBasicInterceptor::operator()(HTTP_INTERCEPTOR_ARGS){
+  bool HttpBasicInterceptor::operator()(HTTP_INTERCEPTOR_CONST_ARGS){
     InfoL << request_method << "/" << request_path.getPath();
     InfoL << request_body;
     return true;

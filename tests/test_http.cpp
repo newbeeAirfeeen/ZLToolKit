@@ -40,7 +40,7 @@ int main(){
 
   });
   Http::HttpBasicInterceptor func;
-  interceptor->addInterceptor(func);
+  interceptor->addIntercept(func);
 
 
   server->start<Http::HttpSession>(8080);

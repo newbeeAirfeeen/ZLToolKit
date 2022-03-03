@@ -30,7 +30,7 @@ namespace Http{
     this-> http_invoke = invoke;
   }
 
-  HttpInterceptor &HttpInterceptor::addIntercept(const std::function<bool(HTTP_INTERCEPTOR_ARGS)>& f){
+  HttpInterceptor &HttpInterceptor::addIntercept(const std::function<bool(HTTP_INTERCEPTOR_CONST_ARGS)>& f){
     interceptors.push_back(f);
     return *this;
   }

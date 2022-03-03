@@ -42,8 +42,9 @@ namespace Http{
                                     const std::string& request_method, \
                                     const Url& request_path, \
                                     const std::string& request_header,\
-                                    const std::string& request_body
-#define HTTP_INTERCEPTOR_VALUES request_header_map, request_method, request_path, request_header, request_body
+                                    const std::string& request_body, \
+                                    const std::shared_ptr<HttpSession>& session
+//#define HTTP_INTERCEPTOR_VALUES request_header_map, request_method, request_path, request_header, request_body
 #define HTTP_INTERCEPTOR_INVOKE_VALES request_header_map, request_method, request_path, request_header, request_body, session
 
   /*
@@ -59,7 +60,7 @@ namespace Http{
     * @description: 增加拦截器，线程不安全
     * @date: 2022/3/1
     */
-    HttpInterceptor & addIntercept(const std::function<bool(HTTP_INTERCEPTOR_ARGS)>&);
+    HttpInterceptor & addIntercept(const std::function<bool(HTTP_INTERCEPTOR_CONST_ARGS)>&);
     /*
     * @description: 调用对应的http回调
     * @date: 2022/3/1
@@ -67,7 +68,7 @@ namespace Http{
     void invoke(HTTP_INTERCEPTOR_ARGS);
   private:
     std::function<void(HTTP_INTERCEPTOR_ARGS)> http_invoke;
-    std::vector<std::function<bool(HTTP_INTERCEPTOR_ARGS)>> interceptors;
+    std::vector<std::function<bool(HTTP_INTERCEPTOR_CONST_ARGS)>> interceptors;
   };
 }
 

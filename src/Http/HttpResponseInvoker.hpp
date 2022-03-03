@@ -45,7 +45,7 @@ namespace Http{
       using namespace toolkit;
       if(!response_ptr)return;
       auto& response = *response_ptr;
-      auto session_self = response.getHttpSession().lock();
+      auto session_self = response.session_ptr.lock();
       if(!session_self)
         return;
       auto str = std::move(response.toString());
