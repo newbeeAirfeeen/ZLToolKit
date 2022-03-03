@@ -59,7 +59,7 @@ namespace Http{
     * @description: 增加拦截器，线程不安全
     * @date: 2022/3/1
     */
-    HttpInterceptor & addInterceptor(const std::function<bool(HTTP_INTERCEPTOR_ARGS)>&);
+    HttpInterceptor & addIntercept(const std::function<bool(HTTP_INTERCEPTOR_ARGS)>&);
     /*
     * @description: 调用对应的http回调
     * @date: 2022/3/1

@@ -64,7 +64,7 @@ public:
             response_invoker.response<ResponseBodyType>(std::cref(response));
         });
         /* 添加基本的拦截器 */
-        interceptor->addInterceptor([](HTTP_INTERCEPTOR_ARGS){
+        interceptor->addIntercept([](HTTP_INTERCEPTOR_ARGS){
             auto it = request_header_map.find(Http::HttpRequestHeader::content_type::value);
             if( it != request_header_map.end() && it->second != RequestBodyType::content_type){
               InfoL << "HTTP Content-Type 不正确";
