@@ -181,10 +181,6 @@ namespace Http{
         return std::move(str);
       }
 
-      std::weak_ptr<HttpSession> getHttpSession() const{
-        return _session;
-      }
-
     public:
       bool isHttpRequest() const override{
         return true;

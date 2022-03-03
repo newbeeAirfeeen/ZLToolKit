@@ -85,10 +85,6 @@ namespace Http {
       return base_header_type::body_l();
     }
 
-    std::weak_ptr<HttpSession> getHttpSession() const{
-      return session_ptr;
-    }
-
     std::string toString() const {
       std::stringstream strs;
       strs << "HTTP/1.1 " << getStatus() << " " << status_descrip << "\r\n";
