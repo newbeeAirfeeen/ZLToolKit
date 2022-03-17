@@ -54,9 +54,7 @@ namespace Http{
   public:
     using header_type = std::unordered_map<std::string, std::string>;
   public:
-    inline void input(const char* data, size_t length){
-      return HttpSplitter::input(data, length);
-    }
+    void input(const char* data, size_t length);
     /*
     * @description: 当收到整个http请求
     * @date: 2022/3/1
@@ -66,72 +64,14 @@ namespace Http{
     virtual void onRecvHttp(header_type&, toolkit::string_view line, std::string& header, std::string& body) = 0;
     virtual void onRecvHttpChunked(header_type& , toolkit::string_view line, std::string& header, std::string& chunked_body, bool isEnd) = 0;
   private:
-    void onHeader(std::string& head){
-      using namespace toolkit;
-      this->header = std::move(head);
-      toolkit::string_view data(this->header);
-      using size_type = typename toolkit::string_view::size_type;
-      size_type begin = 0;
-      size_type end = toolkit::string_view::npos;
-      while((end = data.find("\r\n", begin)) != toolkit::string_view::npos){
-        /// world\r\n
-        if(!begin){
-          request_line = data.substr(begin, end);
-          begin = end + 2;
-          continue;
-        }
-        auto line = data.substr(begin, end - begin);
-        auto pos = line.find(": ");
-        if(pos == toolkit::string_view::npos){
-          ErrorL << "Http 头部字段不符合标准";
-          return onSplitterError();
-        }
-        auto _key = line.substr(0, pos);
-        auto _val = line.substr(pos + 2);
-        std::string key(_key.data(), _key.size());
-        std::string val(_val.data(), _val.size());
-        _header_map.emplace(std::move(key), std::move(val));
-        begin = end + 2;
-      }
-    }
-
-    void onHttpMessage(){
-      onRecvHttp(std::ref(_header_map), request_line,std::ref(header), std::ref(body));
-      this->reset();
-    }
-
-  private:
-    void onRecvHeader(std::string& header, int body_type) override{
-      onHeader(header);
-      if(!body_type)
-        return onHttpMessage();
-    }
-
-    void onRecvBody(std::string& body) override{
-      this->body = std::move(body);
-      return onHttpMessage();
-    }
-
-    void onRecvChunkedBody(std::string& _body) override{
-      this->body = std::move(_body);
-      onRecvHttpChunked(_header_map, request_line, header, this->body, false);
-    }
-
-    void onRecvChunkedBodyTailer() override{
-      this->body.clear();
-      onRecvHttpChunked(_header_map, request_line, header, body, true);
-      reset();
-    }
-
-    void onSplitterError() override{
-      HttpSplitter::reset();
-    }
-
-    void reset(){
-      header.clear();
-      body.clear();
-      _header_map.clear();
-    }
+    void onHeader(std::string& head);
+    void onHttpMessage();
+    void onRecvHeader(std::string& header, int body_type) override;
+    void onRecvBody(std::string& body)override;
+    void onRecvChunkedBody(std::string& _body) override;
+    void onRecvChunkedBodyTailer() override;
+    void onSplitterError() override;
+    void reset();
   private:
     std::string header;
     std::string body;

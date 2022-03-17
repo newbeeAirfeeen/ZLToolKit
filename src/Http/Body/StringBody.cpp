@@ -1,5 +1,5 @@
 /*
-* @file_name: HttpCommon.hpp
+* @file_name: StringBody.cpp
 * @date: 2021/12/06
 * @author: oaho
 * Copyright @ hz oaho, All rights reserved.
@@ -21,24 +21,33 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
- */
-#ifndef SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
-#define SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
-#include "HttpCommon.hpp"
-#include "HttpResponse.hpp"
-#include <memory>
+*/
+
+#include "StringBody.hpp"
+#include "../HttpSession.hpp"
+#include <Network/Socket.h>
 namespace Http{
-  class HttpResponseInvoker{
-  public:
-    using Ptr = std::shared_ptr<HttpResponseInvoker>;
-  public:
-    HttpResponse::Ptr createHttpResponse(const std::shared_ptr<HttpSession>&);
-    /*
-    * @description: 回复Http请求
-    * @date: 2022/3/16
-    * @param: response指针
-    */
-    void response(const HttpResponse::Ptr& response);
-  };
-}
-#endif // SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
+  std::ostream& StringBody::print(std::ostream &os) const{
+    os.write(std::string::data(), std::string::size());
+    return os;
+  }
+
+  void StringBody::loadFromString(std::string &str){
+    return std::string::swap(str);
+  }
+
+  const char* StringBody::getContentType() const{
+    return "text/plain";
+  }
+
+  size_t StringBody::getContentLength() const{
+    return std::string::size();
+  }
+
+  void StringBody::sendHttpBody(const std::shared_ptr<toolkit::Socket> &ptr) const {
+    using namespace toolkit;
+    using SuperType = std::string;
+    ptr->send(SuperType::data(), SuperType::size(), nullptr, 0, true);
+  }
+
+};

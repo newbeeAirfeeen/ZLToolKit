@@ -66,4 +66,12 @@ namespace Http{
       raw_host.erase(raw_host.size() - 1);
     }
   }
+
+  void HttpClient::onRecvHttp(header_type&, toolkit::string_view line, std::string& header, std::string& body){
+
+  }
+
+  void HttpClient::onRecvHttpChunked(header_type& , toolkit::string_view line, std::string& header, std::string& chunked_body, bool isEnd){
+
+  }
 }

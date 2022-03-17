@@ -1,5 +1,5 @@
 /*
-* @file_name: HttpCommon.hpp
+* @file_name: HttpBasicInterceptor.cpp
 * @date: 2021/12/06
 * @author: oaho
 * Copyright @ hz oaho, All rights reserved.
@@ -22,23 +22,23 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
  */
-#ifndef SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
-#define SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
-#include "HttpCommon.hpp"
-#include "HttpResponse.hpp"
-#include <memory>
-namespace Http{
-  class HttpResponseInvoker{
-  public:
-    using Ptr = std::shared_ptr<HttpResponseInvoker>;
-  public:
-    HttpResponse::Ptr createHttpResponse(const std::shared_ptr<HttpSession>&);
-    /*
-    * @description: 回复Http请求
-    * @date: 2022/3/16
-    * @param: response指针
-    */
-    void response(const HttpResponse::Ptr& response);
-  };
+#include "HttpMethodIntercept.hpp"
+static const char* getMethodDescribe(Http::HttpMethod method){
+  switch(method) {
+    case Http::HttpMethod::GET:
+      return "GET";
+    case Http::HttpMethod::POST:
+      return "POST";
+    default:
+      return "";
+  }
 }
-#endif // SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
+namespace Http{
+  HttpMethodIntercept::HttpMethodIntercept(const HttpMethod& m):_method(m), _method_describe(getMethodDescribe(_method)){}
+  bool HttpMethodIntercept::operator()(const HttpRequest& request, HttpResponse& response){
+    if(request.getMethod() == _method_describe)
+      return true;
+    response.setStatus<Http::Status::method_not_allowed>();
+    return false;
+  }
+};

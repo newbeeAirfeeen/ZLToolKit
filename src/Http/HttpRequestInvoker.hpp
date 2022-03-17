@@ -32,15 +32,11 @@ namespace Http{
   public:
     using Ptr = std::shared_ptr<HttpRequestInvoker>;
   public:
-    template<typename BodyType>
-    typename HttpRequest<BodyType>::Ptr createHttpRequest(HTTP_INTERCEPTOR_ARGS){
-      auto request = std::make_shared<HttpRequest<BodyType>>();
-      request -> _method = std::move(request_method);
-      request -> _url = std::move(request_path);
-      request -> onHeaderBody(request_header_map, request_header, request_body);
-      request -> _session = session;
-      return std::move(request);
-    }
+    /*
+    * @description: 根据参数构造http
+    * @return: HttpRequest
+    */
+    typename HttpRequest::Ptr createHttpRequest(HTTP_INTERCEPTOR_ARGS);
   };
 }
 

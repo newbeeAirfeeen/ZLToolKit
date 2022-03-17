@@ -27,10 +27,11 @@
 #include <functional>
 #include <memory>
 #include <vector>
-#include <Poller/EventPoller.h>
 #include "Util/Url.hpp"
 #include "HttpCommon.hpp"
 #include "HttpReciever.hpp"
+#include "HttpRequest.hpp"
+#include "HttpResponse.hpp"
 namespace Http{
 #define HTTP_INTERCEPTOR_ARGS typename HttpReciever::header_type& request_header_map,\
                               std::string& request_method, \
@@ -38,13 +39,6 @@ namespace Http{
                               std::string& request_header,\
                               std::string& request_body,                             \
                               const std::shared_ptr<HttpSession>& session
-#define HTTP_INTERCEPTOR_CONST_ARGS const typename HttpReciever::header_type& request_header_map,\
-                                    const std::string& request_method, \
-                                    const Url& request_path, \
-                                    const std::string& request_header,\
-                                    const std::string& request_body, \
-                                    const std::shared_ptr<HttpSession>& session
-//#define HTTP_INTERCEPTOR_VALUES request_header_map, request_method, request_path, request_header, request_body
 #define HTTP_INTERCEPTOR_INVOKE_VALES request_header_map, request_method, request_path, request_header, request_body, session
 
   /*
@@ -55,20 +49,20 @@ namespace Http{
     using Ptr = std::shared_ptr<HttpInterceptor>;
   public:
     ~HttpInterceptor() = default;
-    void setInvoke(const std::function<void(HTTP_INTERCEPTOR_ARGS)>& invoke);
+    void setInvoke(const std::function<void(const HttpRequest&, HttpResponse&)>& invoke);
     /*
     * @description: 增加拦截器，线程不安全
     * @date: 2022/3/1
     */
-    HttpInterceptor & addIntercept(const std::function<bool(HTTP_INTERCEPTOR_CONST_ARGS)>&);
+    HttpInterceptor & addIntercept(const std::function<bool(const HttpRequest&, HttpResponse&)>&);
     /*
     * @description: 调用对应的http回调
     * @date: 2022/3/1
     */
     void invoke(HTTP_INTERCEPTOR_ARGS);
   private:
-    std::function<void(HTTP_INTERCEPTOR_ARGS)> http_invoke;
-    std::vector<std::function<bool(HTTP_INTERCEPTOR_CONST_ARGS)>> interceptors;
+    std::function<void(const HttpRequest&, HttpResponse&)> http_invoke;
+    std::vector<std::function<bool(const HttpRequest&, HttpResponse&)>> interceptors;
   };
 }
 

@@ -1,6 +1,6 @@
 /*
- * @file_name: HttpHeader.cpp
- * @date: 2021/12/06
+ * @file_name: HttpBodyFactory.hpp
+ * @date: 2022/03/14
  * @author: oaho
  * Copyright @ hz oaho, All rights reserved.
  *
@@ -22,31 +22,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "HttpHeaderBase.hpp"
+#ifndef SHTOOLKIT_HTTPBODYFACTORY_HPP
+#define SHTOOLKIT_HTTPBODYFACTORY_HPP
+#include "HttpBody.hpp"
 namespace Http
 {
-
-  HttpHeader &HttpHeader::operator=(HttpHeader &&other)
+  class HttpBodyFactory
   {
-    SuperType::operator=(std::move(other));
-    return *this;
-  }
+  public:
+    static HttpBody::Ptr createHttpBody(const char *mime_type);
+  };
+};
 
-  void HttpHeader::loadHeader(SuperType &_header)
-  {
-    SuperType::operator=(std::move(_header));
-  }
-
-  std::string HttpHeader::toString() const
-  {
-    std::stringstream str;
-    auto begin = SuperType::cbegin();
-    auto end = SuperType::cend();
-    while (begin != end)
-    {
-      str << (*begin).first << ": " << (*begin).second << "\r\n";
-      ++begin;
-    }
-    return std::move(str.str());
-  }
-}
+#endif // SHTOOLKIT_HTTPBODYFACTORY_HPP

@@ -1,5 +1,5 @@
 /*
-* @file_name: HttpCommon.hpp
+* @file_name: HttpRequestHandler.cpp
 * @date: 2021/12/06
 * @author: oaho
 * Copyright @ hz oaho, All rights reserved.
@@ -22,23 +22,29 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
  */
-#ifndef SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
-#define SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
-#include "HttpCommon.hpp"
-#include "HttpResponse.hpp"
-#include <memory>
+#include "HttpRequestHandler.hpp"
+#include "Interceptors/HttpMethodIntercept.hpp"
 namespace Http{
-  class HttpResponseInvoker{
-  public:
-    using Ptr = std::shared_ptr<HttpResponseInvoker>;
-  public:
-    HttpResponse::Ptr createHttpResponse(const std::shared_ptr<HttpSession>&);
-    /*
-    * @description: 回复Http请求
-    * @date: 2022/3/16
-    * @param: response指针
-    */
-    void response(const HttpResponse::Ptr& response);
-  };
-}
-#endif // SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
+  std::unordered_map<std::string, HttpInterceptor::Ptr> HttpRequestHandler::_http_handle_map_;
+  static HttpInterceptor::Ptr null_interceptor;
+  const HttpInterceptor::Ptr& HttpRequestHandler::getInvokes(const std::string& path){
+    auto interceptor = _http_handle_map_.find(path);
+    if(interceptor != _http_handle_map_.end())
+      return interceptor->second;
+    return null_interceptor;
+  }
+
+  const HttpInterceptor::Ptr& HttpRequestHandler::apiRegister(const std::string& path, const HttpCallback& f){
+    HttpInterceptor::Ptr interceptor = std::make_shared<HttpInterceptor>();
+    interceptor->setInvoke(f);
+    _http_handle_map_.emplace(path, interceptor);
+    return interceptor;
+  }
+
+  const HttpInterceptor::Ptr& HttpRequestHandler::apiRegister(const std::string& path, const HttpMethod& method, const HttpCallback& f){
+    auto& interceptor = apiRegister(path, f);
+    HttpMethodIntercept _interceptor(method);
+    interceptor->addIntercept(_interceptor);
+    return interceptor;
+  }
+};

@@ -24,20 +24,13 @@
  */
 #include <Util/logger.h>
 #include "HttpSession.hpp"
-#include "HttpReciever.hpp"
+#include "Util/Url.hpp"
+#include "HttpRequestHandler.hpp"
+#include <string>
 #include <utility>
 #include <vector>
 using namespace toolkit;
 namespace Http {
-
-    std::unordered_map<std::string, HttpInterceptor::Ptr> HttpRequestHandler::_http_handle_map_;
-    HttpInterceptor::Ptr HttpRequestHandler::getInvokes(const std::string& path){
-      auto it = _http_handle_map_.find(path);
-      if(it != _http_handle_map_.end()){
-        return it->second;
-      }
-      return nullptr;
-    }
 
     HttpSession::HttpSession(const Socket::Ptr &sock)
         : toolkit::TcpSession(sock) {
@@ -59,9 +52,6 @@ namespace Http {
     }
     void HttpSession::onError(const SockException &err) { ErrorL << err.what(); }
 
-    void HttpSession::sendHttp(const std::string& buf){
-      SocketHelper::send(std::make_shared<BufferLikeString>(buf));
-    }
 
     void HttpSession::onRecvHttp(header_type& header_map, toolkit::string_view line, std::string& header, std::string& body){
       auto vec = line.split(" ");
@@ -78,7 +68,7 @@ namespace Http {
           uri.append("http://", 7);
         }
         //uri.append()
-        auto it = header_map.find(Http::HttpRequestHeader::host::value);
+        auto it = header_map.find("Host");
         if( it != header_map.end()) uri.append(it->second.data(), it->second.size());
         else uri.append("unknown");
         uri.append(vec[1].data(), vec[1].end());
@@ -94,5 +84,9 @@ namespace Http {
 
     void HttpSession::onRecvHttpChunked(header_type& , toolkit::string_view line, std::string& header, std::string& chunked_body, bool isEnd){
       WarnL << chunked_body.size();
+    }
+
+    const Socket::Ptr& HttpSession::getSock() const{
+      return SocketHelper::getSock();
     }
 }

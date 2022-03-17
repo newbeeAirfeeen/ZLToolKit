@@ -26,12 +26,7 @@
 #define HTTP_CLIENT_HPP
 #include <Network/TcpClient.h>
 #include <functional>
-#include "HttpRequest.hpp"
-#include "HttpResponse.hpp"
 #include "HttpReciever.hpp"
-#include "Util/Url.hpp"
-#include "HttpCommon.hpp"
-#include "HttpInterceptor.hpp"
 #include <memory>
 #include <functional>
 namespace Http{
@@ -42,9 +37,6 @@ namespace Http{
     using Buffer = toolkit::Buffer;
     using EventPoller = toolkit::EventPoller;
     using Super = toolkit::TcpClient;
-    template<typename T> using RequestType = typename HttpRequest<T>::Ptr&;
-    template<typename T> using ResponseType = const typename HttpResponse<T>::Ptr&;
-    template<typename T, typename R> using HttpCallback = std::function<void(RequestType<T>, ResponseType<R>)>;
   public:
     explicit HttpClient(const std::string& host, size_t time_out = 10, const EventPoller::Ptr &poller = nullptr);
     /*
@@ -60,30 +52,9 @@ namespace Http{
     */
     void setHost(const std::string&);
 
-    template<typename RequestBodyType, typename ResponseBodyType>
-    auto get(RequestType<ResponseBodyType> request, const HttpCallback<RequestBodyType, ResponseBodyType>& f) -> void{
-      this->host.append(request->getRequestPath());
-      request->template setMethod<Http::Method::get>();
-      request->_url.fromString(this->host);
-      setInvoke(request, f);
-    }
-
-    template<typename RequestBodyType, typename ResponseBodyType>
-    auto post(RequestType<ResponseBodyType> request, const HttpCallback<RequestBodyType, ResponseBodyType>& f) -> void{
-      this->host.append(request->getRequestPath());
-      request->template setMethod<Http::Method::get>();
-      request->_url.fromString(this->host);
-      setInvoke(request, f);
-    }
-
   protected:
-    template<typename RequestBodyType, typename ResponseBodyType>
-    void setInvoke(RequestType<ResponseBodyType> request, const HttpCallback<RequestBodyType, ResponseBodyType>& f){
-      interceptor.setInvoke([f, request](HTTP_INTERCEPTOR_ARGS){
-
-      });
-      startConnect(raw_host, request->getRemotePort(), _time_out);
-    }
+    void onRecvHttp(header_type&, toolkit::string_view line, std::string& header, std::string& body) override;
+    void onRecvHttpChunked(header_type& , toolkit::string_view line, std::string& header, std::string& chunked_body, bool isEnd) override;
   protected:
     void onConnect(const SockException &ex) override;
     void onRecv(const Buffer::Ptr &buf) override;
@@ -94,7 +65,6 @@ namespace Http{
     std::string raw_host;
     std::string host;
     size_t _time_out = 10;
-    HttpInterceptor interceptor;
   };
 };
 

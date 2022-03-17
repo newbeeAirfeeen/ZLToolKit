@@ -1,5 +1,5 @@
 /*
-* @file_name: HttpBasicInterceptor.hpp
+* @file_name: JsonBody.cpp
 * @date: 2021/12/06
 * @author: oaho
 * Copyright @ hz oaho, All rights reserved.
@@ -22,16 +22,40 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-
-#ifndef SHTOOLKIT_HTTPBASICINTERCEPTOR_HPP
-#define SHTOOLKIT_HTTPBASICINTERCEPTOR_HPP
-#include "Http/HttpInterceptor.hpp"
+#include "JsonBody.hpp"
 namespace Http{
-  class HttpBasicInterceptor {
-  public:
-    bool operator()(HTTP_INTERCEPTOR_CONST_ARGS);
-  };
-}
 
+  std::ostream& JsonBody::print(std::ostream &os) const{
+    Json::StreamWriterBuilder builder;
+    auto str = std::move(Json::writeString(builder, *this));
+    os << str;
+    return os;
+  }
 
-#endif // SHTOOLKIT_HTTPBASICINTERCEPTOR_HPP
+  void JsonBody::loadFromString(std::string& str){
+    Json::CharReaderBuilder read_builder;
+    std::string err;
+    std::unique_ptr<Json::CharReader> reader(read_builder.newCharReader());
+    if (!reader)
+      throw std::bad_alloc();
+    Json::Value val;
+    if (!reader->parse(str.data(), str.data() + str.size(), &val,
+                       &err)){
+      throw std::logic_error(err);
+    }
+    Json::Value::swap(val);
+  }
+
+  const char* JsonBody::getContentType() const{
+    return "application/json";
+  }
+
+  size_t JsonBody::getContentLength() const{
+    Json::StreamWriterBuilder builder;
+    auto str = std::move(Json::writeString(builder, *this));
+    return str.size();
+  }
+  void JsonBody::sendHttpBody(const std::shared_ptr<toolkit::Socket>& ptr) const {
+
+  }
+};

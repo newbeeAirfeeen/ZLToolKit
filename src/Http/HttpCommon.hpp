@@ -25,11 +25,11 @@
 #ifndef SHTOOLKIT_HTTPCOMMON_HPP
 #define SHTOOLKIT_HTTPCOMMON_HPP
 namespace Http{
-class HttpSession;
-class HttpRequestInvoker;
-class HttpResponseInvoker;
-class HttpClient;
+  class HttpSession;
+  class HttpRequestInvoker;
+  class HttpResponseInvoker;
+  class HttpClient;
 }
-#define HTTP_USER_AGENT "OAHO Simple Http'Client/1.0.0"
-#define HTTP_SERVER "OAHO Simple Http'Server/1.0.0"
+#define HTTP_USER_AGENT "autil/1.0.0"
+#define HTTP_SERVER "autil/1.0.0"
 #endif // SHTOOLKIT_HTTPCOMMON_HPP

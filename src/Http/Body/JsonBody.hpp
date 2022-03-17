@@ -1,5 +1,5 @@
 /*
- * @file_name: string_body.hpp
+ * @file_name: JsonBody.hpp
  * @date: 2021/12/06
  * @author: oaho
  * Copyright @ hz oaho, All rights reserved.
@@ -26,71 +26,22 @@
 #define HTTP_JSON_BODY_HPP
 #include <jsoncpp/json.h>
 #include <memory>
+#include "HttpBody.hpp"
 namespace Http {
 
-  class JsonParser {
+  class JsonBody : public HttpBody, public Json::Value {
   public:
-    using value_type = typename Json::Value;
-  public:
-    static void serialize(const value_type &val, std::string &target) {
-      Json::StreamWriterBuilder builder;
-      target = std::move(Json::writeString(builder, val));
-    }
-    static void from_string(const std::string &source, value_type &val) {
-      Json::CharReaderBuilder read_builder;
-      std::string err;
-      std::unique_ptr<Json::CharReader> reader(read_builder.newCharReader());
-      if (!reader)
-        throw std::bad_alloc();
-      if (!reader->parse(source.data(), source.data() + source.size(), &val,
-                         &err)) {
-        throw std::logic_error(err);
-      }
-    }
-  };
+    ~JsonBody() override = default;
 
-  class JsonBody{
-  public:
-    static constexpr const char *content_type = "application/json";
-    static constexpr bool need_content_length = true;
-    using parser_type = JsonParser;
-    using value_type = typename JsonParser::value_type;
-    using size_type = size_t;
+    std::ostream &print(std::ostream &os) const override;
 
-  public:
-    JsonBody() = default;
-    JsonBody(const JsonBody &) = delete;
-    JsonBody &operator=(const JsonBody &) = delete;
+    void loadFromString(std::string &string) override;
 
-    std::string toString() const{
-      if(value.empty())
-        return "";
-      return val;
-    }
+    const char *getContentType() const override;
 
-    void loadFromString(std::string& val){
-      this->val = std::move(val);
-      parser_type::from_string(this->val, value);
-    }
-
-    template<typename T>
-    JsonBody& set(const char* field, const T& _v){
-      value[field] = _v;
-      return *this;
-    }
-
-    void flush() const{
-      parser_type::serialize(value, val);
-    }
-
-    inline size_t size() const {
-        return val.size();
-    }
-  public:
-    bool empty() const { return value.size() == 0; }
-  private:
-    mutable std::string val;
-    value_type value;
+    size_t getContentLength() const override;
+  protected:
+    void sendHttpBody(const std::shared_ptr<toolkit::Socket> &ptr) const override;
   };
 }; // namespace http
 

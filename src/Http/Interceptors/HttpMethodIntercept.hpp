@@ -1,5 +1,5 @@
 /*
-* @file_name: HttpCommon.hpp
+* @file_name: HttpBasicInterceptor.hpp
 * @date: 2021/12/06
 * @author: oaho
 * Copyright @ hz oaho, All rights reserved.
@@ -21,24 +21,25 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
- */
-#ifndef SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
-#define SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
-#include "HttpCommon.hpp"
-#include "HttpResponse.hpp"
-#include <memory>
+*/
+
+#ifndef SHTOOLKIT_HTTPMETHODINTERCEPT_HPP
+#define SHTOOLKIT_HTTPMETHODINTERCEPT_HPP
+#include "Http/HttpInterceptor.hpp"
+#include "../HttpMethod.hpp"
 namespace Http{
-  class HttpResponseInvoker{
+  class HttpMethodIntercept {
   public:
-    using Ptr = std::shared_ptr<HttpResponseInvoker>;
+    using Ptr = std::shared_ptr<HttpMethodIntercept>;
   public:
-    HttpResponse::Ptr createHttpResponse(const std::shared_ptr<HttpSession>&);
-    /*
-    * @description: 回复Http请求
-    * @date: 2022/3/16
-    * @param: response指针
-    */
-    void response(const HttpResponse::Ptr& response);
+    explicit HttpMethodIntercept(const HttpMethod&);
+  public:
+    bool operator()(const HttpRequest&, HttpResponse& response);
+  private:
+    HttpMethod _method;
+    const char* _method_describe;
   };
-}
-#endif // SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
+};
+
+
+#endif // SHTOOLKIT_HTTPMETHODINTERCEPT_HPP

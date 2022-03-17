@@ -15,4 +15,5 @@
 #include "HttpRequestInvoker.hpp"
 #include "HttpResponseInvoker.hpp"
 #include "HttpClient.hpp"
+#include "HttpRequestHandler.hpp"
 #endif // SHTOOLKIT_HTTP_HPP

@@ -1,5 +1,5 @@
 /*
-* @file_name: HttpCommon.hpp
+* @file_name: HttpRequestHandler.hpp
 * @date: 2021/12/06
 * @author: oaho
 * Copyright @ hz oaho, All rights reserved.
@@ -21,24 +21,29 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
- */
-#ifndef SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
-#define SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
-#include "HttpCommon.hpp"
-#include "HttpResponse.hpp"
-#include <memory>
+*/
+#ifndef SHTOOLKIT_HTTPREQUESTHANDLER_HPP
+#define SHTOOLKIT_HTTPREQUESTHANDLER_HPP
+#include "HttpInterceptor.hpp"
+#include <functional>
 namespace Http{
-  class HttpResponseInvoker{
+  class HttpRequestHandler{
   public:
-    using Ptr = std::shared_ptr<HttpResponseInvoker>;
+    using HttpCallback = std::function<void(const HttpRequest&, HttpResponse&)>;
   public:
-    HttpResponse::Ptr createHttpResponse(const std::shared_ptr<HttpSession>&);
-    /*
-    * @description: 回复Http请求
-    * @date: 2022/3/16
-    * @param: response指针
-    */
-    void response(const HttpResponse::Ptr& response);
+    static const HttpInterceptor::Ptr& apiRegister(const std::string& path, const HttpCallback& f);
+    static const HttpInterceptor::Ptr& apiRegister(const std::string& path, const HttpMethod&  method, const HttpCallback& f);
+  /*
+    * @description: 注册http请求, 此函数需要在http服务器启动之前调用。不然
+    *               会有线程安全问题
+    * @date: 2022/3/1
+    * @param path: 请求路径
+    * @return:
+   */
+    static const HttpInterceptor::Ptr& getInvokes(const std::string& path);
+
+  private:
+    static std::unordered_map<std::string, HttpInterceptor::Ptr> _http_handle_map_;
   };
-}
-#endif // SHTOOLKIT_HTTPRESPONSEINVOKER_HPP
+};
+#endif // SHTOOLKIT_HTTPREQUESTHANDLER_HPP

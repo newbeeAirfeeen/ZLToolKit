@@ -23,3 +23,13 @@
 * SOFTWARE.
  */
 #include "HttpRequestInvoker.hpp"
+namespace Http{
+  typename HttpRequest::Ptr HttpRequestInvoker::createHttpRequest(HTTP_INTERCEPTOR_ARGS){
+    HttpRequest::Ptr request = std::make_shared<HttpRequest>();
+    request->_method = std::move(request_method);
+    request->_url = std::move(request_path);
+    request->_session = session;
+    request->onHeaderBody(request_header_map, request_header, request_body);
+    return request;
+  }
+};

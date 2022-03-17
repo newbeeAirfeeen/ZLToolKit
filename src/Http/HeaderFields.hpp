@@ -25,16 +25,29 @@
 #ifndef HEADER_FIELDS_HPP
 #define HEADER_FIELDS_HPP
 #include "HttpHeaderBase.hpp"
-#define REQUEST_HEADER_FIELDS(name, val) \
-  class name :public basic_request_header{ \
-  public: static constexpr const char* value = val;};
-#define RESPONSE_HEADER_FIELDS(name, val) \
-  class name :public basic_response_header{ \
-  public: static constexpr const char* value = val; };
-namespace Http{
-  class basic_request_header: public std::true_type{};
-  class basic_response_header: public std::true_type{};
-  class HttpRequestHeader : public http_header_base{
+#include <unordered_map>
+#define REQUEST_HEADER_FIELDS(name, val)      \
+  class name : public basic_request_header    \
+  {                                           \
+  public:                                     \
+    static constexpr const char *value = val; \
+  };
+#define RESPONSE_HEADER_FIELDS(name, val)     \
+  class name : public basic_response_header   \
+  {                                           \
+  public:                                     \
+    static constexpr const char *value = val; \
+  };
+namespace Http
+{
+  class basic_request_header : public std::true_type
+  {
+  };
+  class basic_response_header : public std::true_type
+  {
+  };
+  class HttpRequestHeader : public HttpHeader
+  {
   public:
     REQUEST_HEADER_FIELDS(accept, "Accept")
     REQUEST_HEADER_FIELDS(accept_charset, "Accept-Charset")
@@ -46,7 +59,8 @@ namespace Http{
     REQUEST_HEADER_FIELDS(content_length, "Content-Length")
   };
 
-  class HttpResponseHeader: public http_header_base{
+  class HttpResponseHeader : public HttpHeader
+  {
   public:
     RESPONSE_HEADER_FIELDS(accept_range, "Accept-Ranges")
     RESPONSE_HEADER_FIELDS(server, "Server")
@@ -61,10 +75,20 @@ namespace Http{
 
   using request_field = HttpRequestHeader;
   using response_field = HttpResponseHeader;
-  template<typename T> struct is_response_field: public std::false_type{};
-  template<typename T> struct is_request_field: public std::false_type{};
+  template <typename T>
+  struct is_response_field : public std::false_type
+  {
+  };
+  template <typename T>
+  struct is_request_field : public std::false_type
+  {
+  };
 
-#define IS_REQUEST_FIELD(class_name) template<> struct is_request_field<typename request_field::class_name>: public std::true_type{};
+#define IS_REQUEST_FIELD(class_name)                                                  \
+  template <>                                                                         \
+  struct is_request_field<typename request_field::class_name> : public std::true_type \
+  {                                                                                   \
+  };
   IS_REQUEST_FIELD(accept)
   IS_REQUEST_FIELD(accept_charset)
   IS_REQUEST_FIELD(accept_encoding)
@@ -73,7 +97,11 @@ namespace Http{
   IS_REQUEST_FIELD(connection)
   IS_REQUEST_FIELD(content_type)
   IS_REQUEST_FIELD(content_length)
-#define IS_RESPONSE_FIELD(class_name) template<> struct is_response_field<typename response_field::class_name>:public std::true_type{};
+#define IS_RESPONSE_FIELD(class_name)                                                   \
+  template <>                                                                           \
+  struct is_response_field<typename response_field::class_name> : public std::true_type \
+  {                                                                                     \
+  };
   IS_RESPONSE_FIELD(accept_range)
   IS_RESPONSE_FIELD(server)
   IS_RESPONSE_FIELD(allow)
@@ -84,9 +112,11 @@ namespace Http{
   IS_RESPONSE_FIELD(connection)
   IS_RESPONSE_FIELD(date)
 
-  template<typename T>
-  bool isChunkedTransfer(){
+  template <typename T>
+  bool isChunkedTransfer()
+  {
     return false;
   }
+
 };
 #endif // VIDEO_ON_DEMAND_HEADER_FIELDS_HPP

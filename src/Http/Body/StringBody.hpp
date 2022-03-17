@@ -1,5 +1,5 @@
 /*
- * @file_name: string_body.hpp
+ * @file_name: StringBody.hpp
  * @date: 2021/12/06
  * @author: oaho
  * Copyright @ hz oaho, All rights reserved.
@@ -24,63 +24,23 @@
  */
 #ifndef STRING_BODY_HPP
 #define STRING_BODY_HPP
-#include <cstring>
-#include <memory>
 #include <string>
-namespace http {
-class string_body : protected std::basic_string<char> {
-public:
-  static constexpr const char *content_type = "text/plain";
-  using parser_type = std::string;
-  using size_type = typename std::basic_string<char>::size_type;
-  using value_type = std::basic_string<char>;
-  using Ptr = std::shared_ptr<string_body>;
+#include "HttpBody.hpp"
+namespace Http {
+  class StringBody : public std::basic_string<char>, public HttpBody{
+  public:
+    ~StringBody() override = default;
 
-public:
-  string_body() = default;
+    std::ostream &print(std::ostream &os) const override;
 
-  string_body(const char *str) : value_type(str, strlen(str)) {
-    const char *s = str;
-  }
+    void loadFromString(std::string &string) override;
 
-  template <size_t len>
-  string_body(const char arr[len]) : value_type(arr, len - 1) {}
+    const char *getContentType() const override;
 
-  string_body(const value_type &val) : value_type(val) {}
-
-  string_body &append(const char *body, size_t len) {
-    value_type::append(body, len);
-    return *this;
-  }
-
-  string_body &append(const string_body &other) {
-    value_type::append(other);
-    return *this;
-  }
-
-  size_t size() const{
-      return std::string::size();
-  }
-
-  string_body& operator = (const std::string& str){
-      std::string::operator=(str);
-      return *this;
-  }
-
-  string_body& operator = (std::string&& str){
-      std::string::operator=(std::move(str));
-      return *this;
-  }
-
-  void flush(){}
-public:
-  value_type to_string() const {
-    value_type _this(*this);
-    return std::move(_this);
-  }
-
-  bool empty() { return value_type::empty(); }
-};
+    size_t getContentLength() const override;
+  protected:
+    void sendHttpBody(const std::shared_ptr<toolkit::Socket> &ptr) const override;
+  };
 }; // namespace http
 
 #endif

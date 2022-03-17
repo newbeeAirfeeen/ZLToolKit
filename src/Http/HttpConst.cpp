@@ -1,6 +1,6 @@
 /*
- * @file_name: HttpHeader.cpp
- * @date: 2021/12/06
+ * @file_name: HttpConst.cpp
+ * @date: 2022/03/17
  * @author: oaho
  * Copyright @ hz oaho, All rights reserved.
  *
@@ -22,31 +22,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "HttpHeaderBase.hpp"
+#include "HttpConst.hpp"
+#include <mutex>
+#include <map>
+#include <string.h>
+#include <Util/onceToken.h>
 namespace Http
 {
-
-  HttpHeader &HttpHeader::operator=(HttpHeader &&other)
-  {
-    SuperType::operator=(std::move(other));
-    return *this;
-  }
-
-  void HttpHeader::loadHeader(SuperType &_header)
-  {
-    SuperType::operator=(std::move(_header));
-  }
-
-  std::string HttpHeader::toString() const
-  {
-    std::stringstream str;
-    auto begin = SuperType::cbegin();
-    auto end = SuperType::cend();
-    while (begin != end)
+    const std::string &getHttpContentType(const char *name)
     {
-      str << (*begin).first << ": " << (*begin).second << "\r\n";
-      ++begin;
+        using namespace toolkit;
+        const char *dot;
+        dot = strrchr(name, '.');
+        static std::multimap<std::string, std::string> mapType;
+
+        static onceToken token([&]()
+                               {
+        for (unsigned int i = 0; i < sizeof(s_mime_src) / sizeof(s_mime_src[0]); ++i) {
+            mapType.emplace(s_mime_src[i][0], s_mime_src[i][1]);
+        } });
+        static std::string defaultType = "text/plain";
+        if (!dot)
+        {
+            return defaultType;
+        }
+        auto it = mapType.find(dot + 1);
+        if (it == mapType.end())
+        {
+            return defaultType;
+        }
+        return it->second;
     }
-    return std::move(str.str());
-  }
-}
+};

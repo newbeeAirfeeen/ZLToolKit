@@ -1,5 +1,5 @@
 /*
- * @file_name: http_base.hpp
+ * @file_name: HttpBase.hpp
  * @date: 2021/12/06
  * @author: oaho
  * Copyright @ hz oaho, All rights reserved.
@@ -27,77 +27,72 @@
 #include <map>
 #include <memory>
 #include <string>
-namespace Http {
-
-  template <bool, typename T, typename R> class basic_message;
-  template <typename _header_type, typename _body_type> class http_message_base {
+#include "HttpHeaderBase.hpp"
+#include "Body/HttpBody.hpp"
+namespace Http
+{
+  class HttpMessage
+  {
   public:
-    using header_type = _header_type;
-    using field_type = typename header_type::field_type;
-    using value_type = typename header_type::value_type;
-    using body_type = _body_type;
-    using Ptr = std::shared_ptr<http_message_base<header_type, body_type>>;
+    using HeaderType = HttpHeader;
+    using field_type = typename HeaderType::field_type;
+    using value_type = typename HeaderType::value_type;
+
   public:
-    http_message_base() = default;
-    http_message_base(const http_message_base<header_type, body_type> &) = delete;
-    http_message_base &operator=(const http_message_base<header_type, body_type>&) = delete;
-    http_message_base(http_message_base<_header_type, body_type> &&other) noexcept: _header_(std::move(other.header)){}
-  public:
-    virtual bool isHttpRequest() const = 0;
-    virtual Ptr  clone() const = 0;
+    HttpMessage() = default;
+    virtual ~HttpMessage() = default;
+    HttpMessage(const HttpMessage &) = delete;
+    HttpMessage &operator=(const HttpMessage &) = delete;
+    HttpMessage(HttpMessage &&other) noexcept : _header_(std::move(other._header_)) {}
 
-    const value_type& getHeader(const field_type &field) const {
-      static value_type null_header;
-      auto it = _header_.find(field);
-      if (it != _header_.end())
-        return (*it).second;
-      return null_header;
-    }
-
-    void setHeader(const field_type &field, const value_type &val) {
-      _header_[field] = val;
-    }
-
-    const body_type& getBody_l() const {
-      return _body;
-    }
-
-    void setBody_l(const body_type& body){
-      this->_body = body;
-    }
-
-    body_type& body_l() {
-      return _body;
-    }
-
-    void setConnection(bool keep_alive){
-      if(keep_alive)
-        return setHeader(header_type::connection, "Keep-Alive");
-      return setHeader(header_type::connection::value, "close");
-    }
+    const value_type &getHeader(const field_type &field) const;
     /*
-    * @description: 是否是持久连接
-    * @date: 2022/3/2
-    * @return: true为持久连接，false为短连接
+    * @description: 设置http头
+    * @date: 2022/3/14
+    * @param:  field: 头部字段
+    *          key: val值
+    * @return:
     */
-    bool getConnection() const{
-      const auto& it = getHeader(header_type::connection::value);
-      if(it == "Keep-Alive")
-        return true;
-      return false;
-    }
-
-    inline std::string toString() const{
-      return _header_.toString();
-    }
-
+    void setHeader(const field_type &field, const value_type &val);
+    /*
+    * @description: 设置是否保持连接
+    * @date: 2022/3/14
+    */
+    void setConnection(bool keep_alive);
+    /*
+     * @description: 是否是持久连接
+     * @date: 2022/3/2
+     * @return: true为持久连接，false为短连接
+     */
+    bool getConnection() const;
+    /*
+    * @description: 得到消息的类型
+    * @date: 2022/3/14
+    */
+    const char* getContentType() const;
+    /*
+    * @description: 设置http体
+    * @date: 2022/3/14
+    * @param:
+    */
+    void setBody(const HttpBody::Ptr& body);
+    /*
+    * @description: 得到body
+    * @date: 2022/3/14
+    * @return: body指针
+    */
+    const HttpBody::Ptr& getBody() const;
+    /*
+    * @description: 得到全部头
+    * @date: 2022/3/17
+    * @return:headers
+    */
+    const HeaderType& getConstHeaders() const;
   protected:
-    void loadHeader(std::string& header, typename header_type::SuperType& _header){
-      _header_.loadHeader(header, _header);
-    }
+    HeaderType &getHeaders();
   private:
-    header_type _header_;
-    body_type _body;
-};
+    HeaderType _header_;
+    HttpBody::Ptr body_ptr;
+  };
 }; // namespace http
 #endif

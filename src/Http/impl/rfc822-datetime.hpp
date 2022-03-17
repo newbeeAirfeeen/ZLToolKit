@@ -41,6 +41,6 @@ static const char* s_zone[] = {
     "MST", "MDT", "PST", "PDT"
 };
 
-std::string rfc822_datetime_format(const std::chrono::system_clock::time_point& point);
+std::string rfc822_datetime_format(const std::chrono::system_clock::time_point& point = std::chrono::system_clock::now());
 
 #endif // SHTOOLKIT_RFC822_DATETIME_HPP

@@ -1,5 +1,5 @@
 /*
- * @file_name: http_header_base.hpp
+ * @file_name: HttpHeader.hpp
  * @date: 2021/12/06
  * @author: oaho
  * Copyright @ hz oaho, All rights reserved.
@@ -26,29 +26,29 @@
 #define HTTP_HEADER_HPP
 #include <unordered_map>
 #include <sstream>
-#include "Util/string_view.hpp"
-namespace Http{
+namespace Http
+{
 
-class http_header_base: public std::unordered_map<std::string , std::string>{
+  class HttpHeader : public std::unordered_map<std::string, std::string>
+  {
   public:
-    using SuperType  = std::unordered_map<std::string , std::string>;
+    using SuperType = std::unordered_map<std::string, std::string>;
     using field_type = typename SuperType::key_type;
     using value_type = typename SuperType::mapped_type;
+
   public:
-    http_header_base(http_header_base&& other) noexcept :SuperType(std::move(other)){}
-    http_header_base() = default;
-    http_header_base& operator = (http_header_base&& other);
+    HttpHeader(HttpHeader &&other) noexcept : SuperType(std::move(other)) {}
+    HttpHeader() = default;
+    HttpHeader &operator=(HttpHeader &&other);
     /*
-    * @description: 留给子类构造http请求头调用
-    * @date: 2022/3/1
-    * @param: _header_str 不带request_response的str
-    * @param: _header 已构造好的map
-    */
-    void loadHeader(std::string& _header_str_, SuperType& _header);
+     * @description: 留给子类构造http请求头调用
+     * @date: 2022/3/1
+     * @param: _header_str 不带request_response的str
+     * @param: _header 已构造好的map
+     */
+    void loadHeader(SuperType &_header);
   public:
     std::string toString() const;
-  private:
-    std::string _header_str;
   };
 };
 

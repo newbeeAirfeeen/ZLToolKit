@@ -24,21 +24,31 @@
  */
 #include "HttpInterceptor.hpp"
 #include "Util/logger.h"
+#include "HttpRequestInvoker.hpp"
+#include "HttpResponseInvoker.hpp"
 using namespace toolkit;
 namespace Http{
-  void HttpInterceptor::setInvoke(const std::function<void(HTTP_INTERCEPTOR_ARGS)>& invoke){
+  void HttpInterceptor::setInvoke(const std::function<void(const HttpRequest&, HttpResponse&)>& invoke){
     this-> http_invoke = invoke;
   }
 
-  HttpInterceptor &HttpInterceptor::addIntercept(const std::function<bool(HTTP_INTERCEPTOR_CONST_ARGS)>& f){
+  HttpInterceptor &HttpInterceptor::addIntercept(const std::function<bool(const HttpRequest&, HttpResponse&)>& f){
     interceptors.push_back(f);
     return *this;
   }
   void HttpInterceptor::invoke(HTTP_INTERCEPTOR_ARGS){
+    HttpRequestInvoker request_invoker;
+    HttpResponseInvoker response_invoker;
+    HttpRequest::Ptr request = request_invoker.createHttpRequest(HTTP_INTERCEPTOR_INVOKE_VALES);
+    HttpResponse::Ptr response = response_invoker.createHttpResponse(session);
+    if( !request || !response){
+      return;
+    }
     bool consumed = true;
     for(auto& interceptor : interceptors){
-      consumed = interceptor(HTTP_INTERCEPTOR_INVOKE_VALES);
+      consumed = interceptor(*request, *response);
       if(!consumed){
+        response_invoker.response(response);
         break;
       }
     }
@@ -46,7 +56,8 @@ namespace Http{
       InfoL << "请求被拦截器截断";
       return;
     }
-    this->http_invoke(HTTP_INTERCEPTOR_INVOKE_VALES);
+    this->http_invoke(*request, *response);
+    response_invoker.response(response);
   }
 
 }

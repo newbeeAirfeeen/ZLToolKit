@@ -48,14 +48,16 @@ namespace Http{
   IS_HTTP_METHOD(put)
   IS_HTTP_METHOD(del)
 
-  template<typename T, typename = typename std::enable_if<Http::is_http_method<T>::value>::type>
-  struct HttpMethod {
-    static constexpr const char* desc = T::name;
-  };
 
   template<typename T, typename = typename std::enable_if<Http::is_http_method<T>::value>::type>
   inline bool isHttpMethod(const std::string& method){
     return method == T::name;
   }
+
+  enum HttpMethod{
+    GET,
+    POST
+  };
+
 };
 #endif // VIDEO_ON_DEMAND_METHOD_HPP
